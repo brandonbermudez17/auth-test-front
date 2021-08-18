@@ -1,24 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import { UIView } from "@uirouter/react";
+import { useState } from "react";
+import { AuthContext } from "./context/AuthContext";
 
 function App() {
+  const [state, setState] = useState({
+    isAuthenticated: false,
+    accessToken: localStorage.getItem('accessToken') || null,
+    refreshToken: localStorage.getItem('refreshToken') || null,
+  });
+  const { isAuthenticated, accessToken, refreshToken } = state;
+  
+  const setTokens = (accessToken, refreshToken) => {
+    setState(state => ({...state, accessToken, refreshToken}))
+    localStorage.setItem('refreshToken', refreshToken)
+    localStorage.setItem('accessToken', accessToken)
+  }
+
+  const setAuth = (isAuthenticated) => {
+    setState(state => ({...state, isAuthenticated}))
+  }
+
+  const reset = () => {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    return {
+      isAuthenticated: false,
+      accessToken: null,
+      refreshToken: null,
+    }
+  }
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthContext.Provider value={{
+      isAuthenticated, accessToken, refreshToken, setTokens, setAuth, reset
+    }}>
+      <UIView />
+    </AuthContext.Provider>
   );
 }
 
